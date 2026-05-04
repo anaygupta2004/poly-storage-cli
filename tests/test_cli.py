@@ -51,6 +51,84 @@ class CLITests(unittest.TestCase):
             limit=20,
         )
 
+    @patch("poly_storage_cli.main.PolyStorageClient")
+    def test_polymarket_orderbook_summary_requires_asset_id(self, client_cls):
+        client = client_cls.return_value
+        client.polymarket.get_orderbook_summary = Mock(return_value={"data_points": 1})
+
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            code = main(
+                [
+                    "polymarket",
+                    "orderbook-summary",
+                    "--condition-id",
+                    "0xabc",
+                    "--asset-id",
+                    "token-1",
+                    "--date",
+                    "2026-04-02",
+                    "--resolution",
+                    "60",
+                ]
+            )
+
+        self.assertEqual(code, 0)
+        client.polymarket.get_orderbook_summary.assert_called_once_with(
+            condition_id="0xabc",
+            asset_id="token-1",
+            date="2026-04-02",
+            resolution=60,
+        )
+
+    @patch("poly_storage_cli.main.PolyStorageClient")
+    def test_range_lookup_billing_and_analytics_commands(self, client_cls):
+        client = client_cls.return_value
+        client.kalshi.get_market_data_range = Mock(return_value={"data_count": 0})
+        client.lookup.polymarket_slug = Mock(return_value={"success": True})
+        client.billing.get_usage = Mock(return_value={"api_calls": 10})
+        client.analytics.get_popular_markets = Mock(return_value={"top_markets": []})
+
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "kalshi",
+                        "market-data-range",
+                        "--ticker",
+                        "KXBTC-TEST",
+                        "--start-timestamp",
+                        "1775000000000",
+                        "--end-timestamp",
+                        "1775000060000",
+                        "--cursor",
+                        "next",
+                        "--limit",
+                        "50",
+                    ]
+                ),
+                0,
+            )
+        client.kalshi.get_market_data_range.assert_called_once_with(
+            ticker="KXBTC-TEST",
+            start_timestamp=1775000000000,
+            end_timestamp=1775000060000,
+            cursor="next",
+            limit=50,
+        )
+
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["lookup-slug", "--slug", "will-bitcoin-hit-100k"]), 0)
+        client.lookup.polymarket_slug.assert_called_once_with(slug="will-bitcoin-hit-100k")
+
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["billing", "usage", "--user-id", "user-1"]), 0)
+        client.billing.get_usage.assert_called_once_with(user_id="user-1")
+
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(main(["analytics", "popular-markets", "--limit", "3", "--days", "7"]), 0)
+        client.analytics.get_popular_markets.assert_called_once_with(limit=3, days=7)
+
     def test_missing_command_returns_error_code(self):
         stderr = io.StringIO()
         with redirect_stderr(stderr):
