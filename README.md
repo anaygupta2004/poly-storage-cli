@@ -23,7 +23,8 @@ entityml polymarket market-data \
 entityml polymarket orderbook-summary \
   --condition-id 0x0008043c3ed513ecff7ee64380fc943dc73eb3dfb6674f281149efe4769f7515 \
   --asset-id 97684905927345553455494278582909124912046930226695064344571162061840768197777 \
-  --date 2026-02-13 \
+  --start-timestamp 1770940800000 \
+  --end-timestamp 1770944399999 \
   --resolution 60
 
 entityml kalshi market-data \
