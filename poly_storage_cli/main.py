@@ -6,11 +6,11 @@ import os
 import sys
 from typing import Any, Dict, Optional
 
-from poly_storage_sdk import PolyStorageAPIError, PolyStorageAuthError, PolyStorageClient
+from entityml import EntityMLAPIError, EntityMLAuthError, EntityMLClient
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="poly-storage")
+    parser = argparse.ArgumentParser(prog="entityml")
     parser.add_argument(
         "--api-key",
         default=None,
@@ -190,12 +190,12 @@ def _emit_json(payload: Dict[str, Any], *, stream) -> None:
     stream.write("\n")
 
 
-def _build_client(args: argparse.Namespace) -> PolyStorageClient:
+def _build_client(args: argparse.Namespace) -> EntityMLClient:
     api_key = args.api_key or os.getenv("ENTITY_API_KEY")
-    return PolyStorageClient(api_key=api_key, base_url=args.base_url)
+    return EntityMLClient(api_key=api_key, base_url=args.base_url)
 
 
-def _execute(client: PolyStorageClient, args: argparse.Namespace) -> Dict[str, Any]:
+def _execute(client: EntityMLClient, args: argparse.Namespace) -> Dict[str, Any]:
     if args.command == "health":
         return client.system.health()
 
@@ -321,7 +321,7 @@ def _execute(client: PolyStorageClient, args: argparse.Namespace) -> Dict[str, A
                 days=args.days,
             )
 
-    raise PolyStorageAPIError(
+    raise EntityMLAPIError(
         "Unknown command",
         status_code=400,
         detail="Unknown command",
@@ -341,7 +341,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         result = _execute(client, args)
         _emit_json(result, stream=sys.stdout)
         return 0
-    except PolyStorageAuthError as exc:
+    except EntityMLAuthError as exc:
         _emit_json(
             {
                 "error": "auth_error",
@@ -351,7 +351,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             stream=sys.stderr,
         )
         return 2
-    except PolyStorageAPIError as exc:
+    except EntityMLAPIError as exc:
         _emit_json(
             {
                 "error": "api_error",

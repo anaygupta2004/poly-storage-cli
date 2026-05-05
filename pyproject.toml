@@ -3,9 +3,9 @@ requires = ["hatchling>=1.26.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "poly-storage-cli"
+name = "entityml-cli"
 version = "0.2.0"
-description = "Official CLI for the Entity Market Data API."
+description = "Official CLI for the EntityML Market Data API."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
@@ -13,7 +13,7 @@ authors = [
   { name = "EntityML" }
 ]
 dependencies = [
-  "poly-storage-sdk>=0.2.0",
+  "entityml>=0.2.0",
 ]
 keywords = ["entityml", "polymarket", "kalshi", "cli", "api"]
 classifiers = [
@@ -25,6 +25,7 @@ classifiers = [
 ]
 
 [project.scripts]
+entityml = "poly_storage_cli.main:main"
 poly-storage = "poly_storage_cli.main:main"
 
 [project.urls]

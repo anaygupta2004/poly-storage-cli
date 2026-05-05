@@ -8,7 +8,7 @@ from poly_storage_cli.main import main
 
 
 class CLITests(unittest.TestCase):
-    @patch("poly_storage_cli.main.PolyStorageClient")
+    @patch("poly_storage_cli.main.EntityMLClient")
     def test_health_command(self, client_cls):
         client = client_cls.return_value
         client.system.health = Mock(return_value={"status": "healthy"})
@@ -21,7 +21,7 @@ class CLITests(unittest.TestCase):
         data = json.loads(stdout.getvalue())
         self.assertEqual(data["status"], "healthy")
 
-    @patch("poly_storage_cli.main.PolyStorageClient")
+    @patch("poly_storage_cli.main.EntityMLClient")
     def test_polymarket_market_data_command(self, client_cls):
         client = client_cls.return_value
         client.polymarket.get_market_data = Mock(return_value={"data_count": 1})
@@ -51,7 +51,7 @@ class CLITests(unittest.TestCase):
             limit=20,
         )
 
-    @patch("poly_storage_cli.main.PolyStorageClient")
+    @patch("poly_storage_cli.main.EntityMLClient")
     def test_polymarket_orderbook_summary_requires_asset_id(self, client_cls):
         client = client_cls.return_value
         client.polymarket.get_orderbook_summary = Mock(return_value={"data_points": 1})
@@ -81,7 +81,7 @@ class CLITests(unittest.TestCase):
             resolution=60,
         )
 
-    @patch("poly_storage_cli.main.PolyStorageClient")
+    @patch("poly_storage_cli.main.EntityMLClient")
     def test_range_lookup_billing_and_analytics_commands(self, client_cls):
         client = client_cls.return_value
         client.kalshi.get_market_data_range = Mock(return_value={"data_count": 0})
